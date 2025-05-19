@@ -52,3 +52,8 @@ variable "worker_volume_ids" {
   description = "IDs of volumes to attach to worker nodes"
   type        = list(string)
 }
+
+variable "control_plane_floating_ip" {
+  description = "Floating IP to associate with the first master node"
+  type        = string
+}

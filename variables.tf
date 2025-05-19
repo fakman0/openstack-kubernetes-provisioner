@@ -1,29 +1,31 @@
-variable "openstack_auth_url" {
-  description = "The OpenStack authentication URL"
-  type        = string
-}
+# OpenStack Authentication Variables #
+## If you want to use declarative OpenStack authentication, uncomment the following variables and set the values in terraform.tfvars file ##
+# variable "openstack_auth_url" {
+#   description = "The OpenStack authentication URL"
+#   type        = string
+# }
 
-variable "openstack_user_name" {
-  description = "The OpenStack username"
-  type        = string
-}
+# variable "openstack_user_name" {
+#   description = "The OpenStack username"
+#   type        = string
+# }
 
-variable "openstack_tenant_name" {
-  description = "The OpenStack tenant/project name"
-  type        = string
-}
+# variable "openstack_tenant_name" {
+#   description = "The OpenStack tenant/project name"
+#   type        = string
+# }
 
-variable "openstack_password" {
-  description = "The OpenStack password"
-  type        = string
-  sensitive   = true
-}
+# variable "openstack_password" {
+#   description = "The OpenStack password"
+#   type        = string
+#   sensitive   = true
+# }
 
-variable "openstack_region" {
-  description = "The OpenStack region"
-  type        = string
-  default     = "RegionOne"
-}
+# variable "openstack_region" {
+#   description = "The OpenStack region"
+#   type        = string
+#   default     = "RegionOne"
+# }
 
 variable "network_name" {
   description = "Name of the network to create"
