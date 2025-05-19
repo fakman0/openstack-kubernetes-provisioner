@@ -1,6 +1,6 @@
 output "master_ips" {
   description = "IP addresses of the Kubernetes master nodes"
-  value       = openstack_networking_floatingip_v2.master[*].address
+  value       = openstack_compute_instance_v2.master[*].access_ip_v4
 }
 
 output "worker_ips" {
