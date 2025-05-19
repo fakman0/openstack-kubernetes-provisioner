@@ -39,4 +39,5 @@ module "compute" {
   keypair_name     = openstack_compute_keypair_v2.kubernetes.name
   master_volume_ids = module.volumes.master_volume_ids
   worker_volume_ids = module.volumes.worker_volume_ids
+  control_plane_floating_ip = module.network.control_plane_floating_ip
 }
