@@ -27,3 +27,8 @@ output "security_group_id" {
   description = "ID of the created security group"
   value       = module.network.security_group_id
 }
+
+output "control_plane_floating_ip" {
+  description = "Floating IP assigned to the Kubernetes control plane"
+  value       = module.network.control_plane_floating_ip
+}
