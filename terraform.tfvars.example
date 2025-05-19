@@ -1,0 +1,27 @@
+# OpenStack Authentication
+openstack_auth_url    = "https://your-openstack-url:5000/v3"
+openstack_user_name   = "your-username"
+openstack_tenant_name = "your-project"
+openstack_password    = "your-password"
+openstack_region      = "RegionOne"
+
+# Network Configuration
+network_name          = "kubernetes-network"
+subnet_cidr           = "10.0.0.0/24"
+dns_nameservers       = ["8.8.8.8", "8.8.4.4"]
+router_name           = "kubernetes-router"
+
+# Compute Configuration
+master_count          = 3
+worker_count          = 3
+master_flavor         = "m1.large"
+worker_flavor         = "m1.large"
+image_id              = "your-image-id"  # Must be provided (It is recommended to use Ubuntu 20.00 or later)
+
+# SSH Configuration
+ssh_key_name          = "kubernetes-key"
+ssh_public_key        = "ssh-rsa AAAA..." # Replace with your public key
+
+# Volume Configuration
+master_volume_size    = 100
+worker_volume_size    = 150 
