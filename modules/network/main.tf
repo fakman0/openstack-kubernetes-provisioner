@@ -37,12 +37,21 @@ resource "openstack_networking_secgroup_v2" "kubernetes" {
   description = "Security group for Kubernetes cluster"
 }
 
+# Allow ARP requests
+resource "openstack_networking_secgroup_rule_v2" "ARP" {
+  direction         = "ingress"
+  remote_group_id   = openstack_networking_secgroup_v2.kubernetes.id
+  ethertype         = "IPv4"
+  security_group_id = openstack_networking_secgroup_v2.kubernetes.id
+}
+
 # Allow all internal communication between nodes
 resource "openstack_networking_secgroup_rule_v2" "internal" {
   direction         = "ingress"
   ethertype         = "IPv4"
   remote_ip_prefix  = var.subnet_cidr
   security_group_id = openstack_networking_secgroup_v2.kubernetes.id
+  description       = "Allow all internal communication between nodes"
 }
 
 # Allow SSH access
@@ -54,6 +63,7 @@ resource "openstack_networking_secgroup_rule_v2" "ssh" {
   port_range_max    = 22
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = openstack_networking_secgroup_v2.kubernetes.id
+  description       = "Allow SSH access"
 }
 
 # Allow HTTPS/Kubernetes API
@@ -65,6 +75,7 @@ resource "openstack_networking_secgroup_rule_v2" "kube_api" {
   port_range_max    = 6443
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = openstack_networking_secgroup_v2.kubernetes.id
+  description       = "Allow HTTPS/Kubernetes API"
 }
 
 # Allow ICMP
@@ -74,6 +85,7 @@ resource "openstack_networking_secgroup_rule_v2" "icmp" {
   protocol          = "icmp"
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = openstack_networking_secgroup_v2.kubernetes.id
+  description       = "Allow ICMP"
 }
 
 # Allow NodePort services
@@ -85,4 +97,9 @@ resource "openstack_networking_secgroup_rule_v2" "nodeport" {
   port_range_max    = 32767
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = openstack_networking_secgroup_v2.kubernetes.id
+}
+
+# Reserve a floating IP for the Kubernetes control plane (master-1)
+resource "openstack_networking_floatingip_v2" "control_plane" {
+  pool = "public"  # Change to your external network name if different
 }

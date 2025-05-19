@@ -17,3 +17,13 @@ output "security_group_id" {
   description = "ID of the created security group"
   value       = openstack_networking_secgroup_v2.kubernetes.id
 }
+
+output "control_plane_floating_ip" {
+  description = "Floating IP reserved for the Kubernetes control plane"
+  value       = openstack_networking_floatingip_v2.control_plane.address
+}
+
+output "control_plane_floating_ip_id" {
+  description = "ID of the floating IP reserved for the Kubernetes control plane"
+  value       = openstack_networking_floatingip_v2.control_plane.id
+}
