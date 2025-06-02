@@ -1,0 +1,47 @@
+---
+# Containerd configuration tasks for Kubernetes
+
+- name: Check if containerd config file exists
+  ansible.builtin.stat:
+    path: /etc/containerd/config.toml
+  register: containerd_config
+  become: true
+
+- name: Ensure containerd service is installed
+  ansible.builtin.package:
+    name: containerd
+    state: present
+  become: true
+  when: not containerd_config.stat.exists
+
+- name: Check if CRI is disabled in containerd config
+  ansible.builtin.command: grep "disabled_plugins = \[\"cri\"\]" /etc/containerd/config.toml
+  register: cri_disabled
+  changed_when: false
+  failed_when: false
+  become: true
+  when: containerd_config.stat.exists
+
+- name: Enable CRI plugin in containerd config
+  ansible.builtin.replace:
+    path: /etc/containerd/config.toml
+    regexp: 'disabled_plugins = \["cri"\]'
+    replace: '# disabled_plugins = ["cri"]'
+  become: true
+  register: containerd_config_updated
+  when: containerd_config.stat.exists and cri_disabled.rc == 0
+
+- name: Restart containerd service
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted
+    daemon_reload: true
+  become: true
+  when: containerd_config_updated is defined and containerd_config_updated.changed
+
+- name: Ensure containerd service is enabled and running
+  ansible.builtin.systemd:
+    name: containerd
+    state: started
+    enabled: true
+  become: true 

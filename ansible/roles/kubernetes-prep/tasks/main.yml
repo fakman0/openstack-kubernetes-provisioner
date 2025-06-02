@@ -16,6 +16,10 @@
   ansible.builtin.import_tasks: packages.yml
   tags: packages
 
+# - name: Configure containerd for Kubernetes
+#   ansible.builtin.import_tasks: containerd.yml
+#   tags: containerd
+
 - name: Include swap disable tasks
   ansible.builtin.import_tasks: swap.yml
   tags: swap
