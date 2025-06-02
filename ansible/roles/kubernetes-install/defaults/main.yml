@@ -1,0 +1,27 @@
+---
+# RKE2 version and installation options
+rke2_version: "v1.32.5+rke2r1"
+rke2_channel: "stable"
+rke2_installer_url: "https://get.rke2.io"
+
+rke2_server_config: |
+  {% if inventory_hostname != groups['masters'][0] %}
+  server: "https://{{ hostvars[groups['masters'][0]]['ansible_host'] }}:9345"
+  token: "{{ hostvars[groups['masters'][0]]['rke2_token'] }}"
+  {% endif %}
+  {% if inventory_hostname in groups['masters'] %}
+  tls-san:
+  {% for host in groups['masters'] %}
+    - "{{ hostvars[host]['ansible_host'] }}"
+    - "{{ hostvars[host]['inventory_hostname'] }}"
+  {% endfor %}
+  node-taint:
+    - "CriticalAddonsOnly=true:NoExecute"
+  cni: "calico"
+  {% endif %}
+  {% if inventory_hostname in groups['workers'] %}
+  node-label:
+    - "node-role.kubernetes.io/worker=true"
+  {% endif %}
+  node-ip: "{{ hostvars[inventory_hostname]['ansible_host'] }}"
+  node-name: "{{ inventory_hostname }}"
