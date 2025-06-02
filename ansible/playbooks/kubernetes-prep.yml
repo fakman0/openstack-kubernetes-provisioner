@@ -1,3 +1,4 @@
+# code: language=ansible
 ---
 - name: Prepare nodes for Kubernetes installation
   hosts: all
@@ -13,7 +14,7 @@
         msg: "Preparing host: {{ inventory_hostname }} ({{ ansible_host }})"
 
   roles:
-    - role: kubernetes-prep
+    - role: "{{ playbook_dir }}/../roles/kubernetes-prep"
 
   post_tasks:
     - name: Verify system is prepared for Kubernetes
@@ -31,8 +32,8 @@
       when: reboot_required.stat.exists
 
     # Optional task to automatically reboot if required - uncomment if needed
-    # - name: Reboot if required
-    #   ansible.builtin.reboot:
-    #     reboot_timeout: 300
-    #     post_reboot_delay: 30
-    #   when: reboot_required.stat.exists 
+    - name: Reboot if required
+      ansible.builtin.reboot:
+        reboot_timeout: 120
+        post_reboot_delay: 60
+      when: reboot_required.stat.exists 

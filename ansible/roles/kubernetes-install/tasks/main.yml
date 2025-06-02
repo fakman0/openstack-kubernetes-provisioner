@@ -1,0 +1,12 @@
+---
+- name: Install RKE2 on first master server
+  ansible.builtin.import_tasks: install-rke2-main.yml
+  tags: install_rke2
+
+- name: Install RKE2 on other master servers
+  ansible.builtin.import_tasks: install-rke2-master.yml
+  tags: install_rke2
+
+- name: Install RKE2 on worker servers
+  ansible.builtin.import_tasks: install-rke2-worker.yml
+  tags: install_rke2

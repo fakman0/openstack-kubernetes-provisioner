@@ -1,0 +1,35 @@
+# code: language=ansible
+---
+- name: Install Kubernetes cluster using RKE2
+  hosts: all
+  gather_facts: true
+  become: true
+
+  pre_tasks:
+    - name: Check connectivity
+      ansible.builtin.ping:
+
+  roles:
+    - role: "{{ playbook_dir }}/../roles/kubernetes-install"
+
+  post_tasks:
+    - name: Check all nodes are ready
+      ansible.builtin.shell: |
+        kubectl --kubeconfig ~/.kube/config get nodes | grep {{ item }} | awk '{print $2}'
+      register: all_nodes_status
+      until: all_nodes_status.stdout == "Ready"
+      retries: 20
+      delay: 15
+      failed_when: all_nodes_status.rc != 0 or (all_nodes_status.retries is defined and all_nodes_status.retries == 20)
+      with_items: "{{ groups['all'] }}"
+      become: true
+      tags: verify_cluster
+      when: inventory_hostname == groups['masters'][0]
+      
+    - name: Display node status for all nodes
+      ansible.builtin.debug:
+        msg: "Node {{ item.item }} status: {{ item.stdout }}"
+      with_items: "{{ all_nodes_status.results }}"
+      when: inventory_hostname == groups['masters'][0] and all_nodes_status is defined
+      tags: verify_cluster
+      
