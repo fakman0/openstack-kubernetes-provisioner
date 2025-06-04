@@ -1,0 +1,46 @@
+---
+# Worker join tasks
+
+- name: Check if node is already joined
+  ansible.builtin.command: kubectl get nodes {{ inventory_hostname }}
+  delegate_to: "{{ groups['masters'][0] }}"
+  register: node_check
+  changed_when: false
+  failed_when: false
+  become: true
+
+- name: Create temporary directory
+  ansible.builtin.file:
+    path: /tmp/kubernetes
+    state: directory
+    mode: '0755'
+  when: node_check.rc != 0
+
+- name: Copy join command from master
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../tmp/kubernetes_join_command"
+    dest: /tmp/kubernetes/join_command
+    mode: '0644'
+  when: node_check.rc != 0
+
+- name: Join the cluster
+  ansible.builtin.command: sh /tmp/kubernetes/join_command
+  become: true
+  register: join_result
+  when: node_check.rc != 0
+  args:
+    creates: /etc/kubernetes/kubelet.conf
+
+- name: Apply worker node labels if specified
+  ansible.builtin.command: kubectl label nodes {{ inventory_hostname }} {{ item.key }}={{ item.value }} --overwrite
+  delegate_to: "{{ groups['masters'][0] }}"
+  with_dict: "{{ node_labels }}"
+  changed_when: true
+  when: node_labels is defined and node_labels | length > 0
+  become: true
+
+- name: Clean up temporary join command
+  ansible.builtin.file:
+    path: /tmp/kubernetes/join_command
+    state: absent
+  when: node_check.rc != 0 
