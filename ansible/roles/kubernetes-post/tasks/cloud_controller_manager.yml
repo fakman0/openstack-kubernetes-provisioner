@@ -1,0 +1,55 @@
+---
+
+- name: Create OCCM directory
+  ansible.builtin.file:
+    path: /root/rke2-manifests/occm/
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Create occmd manifest
+  ansible.builtin.copy:
+    content: "{{ occm_config }}"
+    dest: /root/rke2-manifests/occm/cloud.conf
+    mode: '0644'
+    owner: root
+    group: root
+
+- name: Create occm secret
+  ansible.builtin.shell: |
+    kubectl create secret -n kube-system generic cloud-config --from-file=/root/rke2-manifests/occm/cloud.conf
+  become: true
+
+- name: Create occmd service
+  ansible.builtin.shell: |
+    wget --directory-prefix=/root/rke2-manifests/occm/ https://raw.githubusercontent.com/kubernetes/cloud-provider-openstack/master/manifests/controller-manager/cloud-controller-manager-roles.yaml
+    wget --directory-prefix=/root/rke2-manifests/occm/ https://raw.githubusercontent.com/kubernetes/cloud-provider-openstack/master/manifests/controller-manager/cloud-controller-manager-role-bindings.yaml
+    wget --directory-prefix=/root/rke2-manifests/occm/ https://raw.githubusercontent.com/kubernetes/cloud-provider-openstack/master/manifests/controller-manager/openstack-cloud-controller-manager-ds.yaml
+  become: true
+
+- name: Update node-role in openstack-cloud-controller-manager-ds.yaml
+  ansible.builtin.replace:
+    path: /root/rke2-manifests/occm/openstack-cloud-controller-manager-ds.yaml
+    regexp: 'node-role\.kubernetes\.io/control-plane: ""'
+    replace: 'node-role.kubernetes.io/control-plane: "true"'
+  become: true
+
+- name: Add tolerations to openstack-cloud-controller-manager-ds.yaml
+  ansible.builtin.replace:
+    path: /root/rke2-manifests/occm/openstack-cloud-controller-manager-ds.yaml
+    regexp: 'tolerations:'
+    replace: |-
+      tolerations:
+            - key: "CriticalAddonsOnly"
+              operator: "Equal"
+              value: "true"
+              effect: "NoExecute"
+  become: true
+
+- name: Apply openstack cloud controller manager
+  ansible.builtin.shell: |
+    kubectl apply -f /root/rke2-manifests/occm/cloud-controller-manager-roles.yaml
+    kubectl apply -f /root/rke2-manifests/occm/cloud-controller-manager-role-bindings.yaml
+    kubectl apply -f /root/rke2-manifests/occm/openstack-cloud-controller-manager-ds.yaml
+  become: true

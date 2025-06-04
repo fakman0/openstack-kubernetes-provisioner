@@ -1,0 +1,10 @@
+occm_config: |
+  [Global]
+  auth-url={{ openstack_auth_url }}
+  region={{ openstack_region }}
+  application-credential-id={{ openstack_application_credential_id }}
+  application-credential-secret={{ openstack_application_credential_secret }}
+
+  [LoadBalancer]
+  use-octavia=true
+  floating-network-id={{ public_network_id }}

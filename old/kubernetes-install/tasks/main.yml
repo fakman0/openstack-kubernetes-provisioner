@@ -1,0 +1,40 @@
+---
+# Main task file for kubernetes-install role
+
+- name: Include Kubernetes repository tasks
+  ansible.builtin.import_tasks: repository.yml
+  tags: kubernetes, repository
+
+- name: Include Kubernetes packages installation tasks
+  ansible.builtin.import_tasks: packages.yml
+  tags: kubernetes, packages
+
+- name: Initialize Kubernetes cluster on master node
+  ansible.builtin.import_tasks: master_init.yml
+  when: inventory_hostname in groups['masters']
+  tags: kubernetes, master
+
+- name: Set up kubectl access on master node
+  ansible.builtin.import_tasks: kubectl_setup.yml
+  when: inventory_hostname == groups['masters'][0]
+  tags: kubernetes, kubectl
+
+- name: Set up pod network
+  ansible.builtin.import_tasks: network.yml
+  when: inventory_hostname == groups['masters'][0]
+  tags: kubernetes, network
+
+- name: Generate token for worker nodes
+  ansible.builtin.import_tasks: token.yml
+  when: inventory_hostname == groups['masters'][0]
+  tags: kubernetes, token
+
+- name: Join worker nodes to cluster
+  ansible.builtin.import_tasks: worker_join.yml
+  when: inventory_hostname in groups['workers']
+  tags: kubernetes, worker
+
+- name: Install Helm package manager
+  ansible.builtin.import_tasks: helm.yml
+  when: inventory_hostname == groups['masters'][0] and install_helm | bool
+  tags: kubernetes, helm 

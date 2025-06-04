@@ -1,0 +1,50 @@
+---
+# Kubernetes packages installation tasks
+
+- name: Install Kubernetes packages
+  ansible.builtin.apt:
+    name: "{{ kubernetes_packages }}"
+    state: present
+    update_cache: true
+  become: true
+  register: k8s_install
+  retries: 2
+  delay: 10
+  until: k8s_install is succeeded
+
+- name: Hold Kubernetes packages
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  become: true
+  with_items:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: Create kubelet configuration directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/kubelet.service.d
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Configure kubelet service
+  ansible.builtin.copy:
+    content: |
+      [Service]
+      Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: Restart kubelet
+
+- name: Enable and start kubelet service
+  ansible.builtin.systemd:
+    name: kubelet
+    daemon_reload: true
+    enabled: true
+    state: started
+  become: true 

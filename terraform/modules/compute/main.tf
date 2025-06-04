@@ -1,11 +1,11 @@
 # Create master nodes
 resource "openstack_compute_instance_v2" "master" {
   count           = var.master_count
-  name            = "kubernetes-master-${count.index + 1}"
+  name            = "master-${count.index + 1}"
   image_id        = var.image_id
   flavor_name     = var.master_flavor
   key_pair        = var.keypair_name
-  security_groups = []  # Security groups are already assigned to the ports
+  # Security groups are already assigned to the ports, so we don't set them here
 
   # Use the pre-created port with allowed address pairs
   network {
@@ -18,11 +18,11 @@ resource "openstack_compute_instance_v2" "master" {
 # Create worker nodes
 resource "openstack_compute_instance_v2" "worker" {
   count           = var.worker_count
-  name            = "kubernetes-worker-${count.index + 1}"
+  name            = "worker-${count.index + 1}"
   image_id        = var.image_id
   flavor_name     = var.worker_flavor
   key_pair        = var.keypair_name
-  security_groups = []  # Security groups are already assigned to the ports
+  # Security groups are already assigned to the ports, so we don't set them here
 
   # Use the pre-created port with allowed address pairs
   network {

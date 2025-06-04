@@ -33,7 +33,13 @@ output "control_plane_floating_ip" {
   value       = module.network.control_plane_floating_ip
 }
 
-output "metallb_floating_ips" {
-  description = "Floating IPs reserved for MetalLB"
-  value       = module.network.metallb_floating_ips
+output "application_credential_id" {
+  description = "ID of the application credential for kubernetes openstack cloud controller manager"
+  value       = module.identity.application_credential_id
+}
+
+output "application_credential_secret" {
+  description = "Secret of the application credential for kubernetes openstack cloud controller manager"
+  value       = module.identity.application_credential_secret
+  sensitive   = true
 }

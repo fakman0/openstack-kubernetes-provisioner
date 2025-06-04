@@ -1,0 +1,5 @@
+---
+
+- name: Install and configure kubernetes openstack cloud controller manager
+  ansible.builtin.import_tasks: cloud_controller_manager.yml
+  tags: occm

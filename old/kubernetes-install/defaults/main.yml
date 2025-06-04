@@ -1,0 +1,47 @@
+---
+# Kubernetes version
+kubernetes_version: "1.32.5"
+kubernetes_version_apt: "1.32.5-1.1"
+
+# Container runtime
+container_runtime: "containerd"
+
+# Kubernetes packages
+kubernetes_packages:
+  - kubelet={{ kubernetes_version_apt }}
+  - kubeadm={{ kubernetes_version_apt }}
+  - kubectl={{ kubernetes_version_apt }}
+
+# Network configurations
+kubernetes_pod_network:
+  name: "calico"
+  cidr: "192.168.0.0/16"
+
+# API Server configurations
+api_server_advertise_address: "{{ ansible_default_ipv4.address }}"
+api_server_cert_extra_sans: ["{{ ansible_default_ipv4.address }}", "{{ ansible_fqdn }}", "{{ inventory_hostname }}", "{{ ansible_hostname }}"]
+
+# Token time to live
+token_ttl: "24h"
+
+# Control plane endpoint (for HA setups)
+control_plane_endpoint: "{{ groups['masters'][0] }}"
+control_plane_endpoint_port: "6443"
+
+# kubeconfig file paths
+kubeconfig_file: "/etc/kubernetes/admin.conf"
+local_kubeconfig_file: "~/.kube/config"
+
+# Calico configurations
+calico_version: "v3.26.1"
+calico_manifest_url: "https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/calico.yaml"
+
+# Helm configurations
+install_helm: true
+helm_version: "v3.12.0"
+
+# Node labels
+node_labels: {}
+
+# Node taints
+node_taints: [] 
