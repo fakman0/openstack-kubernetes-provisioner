@@ -1,0 +1,18 @@
+---
+
+- name: Post install tasks
+  hosts: "{{ groups['masters'][0] }}"
+  gather_facts: true
+  become: true
+
+  pre_tasks:
+    - name: Create manifest directory
+      ansible.builtin.file:
+        path: /root/rke2-manifests
+        state: directory
+        mode: "0755"
+      become: true
+      tags: create-manifest-dir
+
+  roles:
+    - role: "{{ playbook_dir }}/../roles/kubernetes-post"

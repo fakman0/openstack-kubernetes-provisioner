@@ -1,0 +1,36 @@
+---
+# Setup kubectl access
+
+- name: Create .kube directory for ansible user
+  ansible.builtin.file:
+    path: ~/.kube
+    state: directory
+    mode: '0700'
+
+- name: Check if kubectl config exists for ansible user
+  ansible.builtin.stat:
+    path: ~/.kube/config
+  register: user_kubeconfig_stat
+
+- name: Copy kubeconfig to ansible user
+  ansible.builtin.copy:
+    src: "{{ kubeconfig_file }}"
+    dest: "{{ local_kubeconfig_file }}"
+    remote_src: true
+    mode: '0600'
+  become: true
+  when: not user_kubeconfig_stat.stat.exists
+
+- name: Update kubeconfig ownership
+  ansible.builtin.file:
+    path: "{{ local_kubeconfig_file }}"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid | default(ansible_user_id) }}"
+    mode: '0600'
+  become: true
+  when: not user_kubeconfig_stat.stat.exists
+
+- name: Verify kubectl functionality
+  ansible.builtin.command: kubectl get nodes
+  register: kubectl_test
+  changed_when: false 
