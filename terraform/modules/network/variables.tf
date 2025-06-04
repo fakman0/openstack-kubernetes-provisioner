@@ -18,12 +18,6 @@ variable "router_name" {
   type        = string
 }
 
-variable "metallb_floating_ip_count" {
-  description = "Number of floating IPs to reserve for MetalLB"
-  type        = number
-  default     = 1
-}
-
 variable "master_count" {
   description = "Number of Kubernetes master nodes"
   type        = number

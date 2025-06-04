@@ -16,7 +16,7 @@ master_count          = 3
 worker_count          = 3
 master_flavor         = "m1.large"
 worker_flavor         = "m1.large"
-image_id              = "your-image-id"  # Must be provided (It is recommended to use Ubuntu 20.00 or later)
+image_id              = "your-image-id"  # Must be provided (It is recommended to use Ubuntu 20.04 or later)
 
 # SSH Configuration
 ssh_key_name          = "kubernetes-key"
@@ -25,3 +25,7 @@ ssh_public_key        = "ssh-rsa AAAA..." # Replace with your public key
 # Volume Configuration
 master_volume_size    = 100
 worker_volume_size    = 150 
+
+# Network Configuration for kubernetes openstack cloud contraller manager
+public_network_id = ""
+public_subnet_id = ""
