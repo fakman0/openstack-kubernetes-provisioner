@@ -104,12 +104,6 @@ resource "openstack_networking_floatingip_v2" "control_plane" {
   pool = "public"  # Change to your external network name if different
 }
 
-# Reserve floating IPs for MetalLB
-resource "openstack_networking_floatingip_v2" "metallb_floating_ips" {
-  count = var.metallb_floating_ip_count
-  pool  = "public"  # Change to your external network name if different
-}
-
 # Create ports for master nodes with allowed address pairs
 resource "openstack_networking_port_v2" "master_port" {
   count              = var.master_count
@@ -122,13 +116,6 @@ resource "openstack_networking_port_v2" "master_port" {
     subnet_id = openstack_networking_subnet_v2.kubernetes.id
   }
 
-  # Add all floating IPs as allowed address pairs
-  dynamic "allowed_address_pairs" {
-    for_each = openstack_networking_floatingip_v2.metallb_floating_ips
-    content {
-      ip_address = allowed_address_pairs.value.address
-    }
-  }
 }
 
 # Create ports for worker nodes with allowed address pairs
@@ -141,14 +128,6 @@ resource "openstack_networking_port_v2" "worker_port" {
 
   fixed_ip {
     subnet_id = openstack_networking_subnet_v2.kubernetes.id
-  }
-
-  # Add all floating IPs as allowed address pairs
-  dynamic "allowed_address_pairs" {
-    for_each = openstack_networking_floatingip_v2.metallb_floating_ips
-    content {
-      ip_address = allowed_address_pairs.value.address
-    }
   }
 
 }

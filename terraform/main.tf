@@ -16,9 +16,6 @@ module "network" {
   # Pass node counts to network module for port creation
   master_count     = var.master_count
   worker_count     = var.worker_count
-  
-  # Pass the number of floating IPs to reserve for MetalLB
-  metallb_floating_ip_count = var.metallb_floating_ip_count
 }
 
 # Volumes module
@@ -53,17 +50,26 @@ module "compute" {
   worker_port_ids  = module.network.worker_port_ids
 }
 
+module "identity" {
+  source = "./modules/identity"
+}
+
 # Output to JSON file for Ansible inventory
 resource "local_file" "terraform_outputs" {
   content = jsonencode({
     master_ips               = module.compute.master_ips
     worker_ips               = module.compute.worker_ips
     control_plane_floating_ip = module.network.control_plane_floating_ip
-    metallb_floating_ips     = module.network.metallb_floating_ips
     network_id               = module.network.network_id
     subnet_id                = module.network.subnet_id
     router_id                = module.network.router_id
     secgroup_id              = module.network.secgroup_id
+    public_network_id        = var.public_network_id
+    public_subnet_id         = var.public_subnet_id
+    auth_url                 = var.openstack_auth_url
+    region                   = var.openstack_region
+    application_credential_id = module.identity.application_credential_id
+    application_credential_secret = module.identity.application_credential_secret
   })
   filename = "${path.module}/../terraform_outputs.json"
 }

@@ -1,31 +1,30 @@
 # OpenStack Authentication Variables #
 ## If you want to use declarative OpenStack authentication, uncomment the following variables and set the values in terraform.tfvars file ##
-# variable "openstack_auth_url" {
-#   description = "The OpenStack authentication URL"
-#   type        = string
-# }
+variable "openstack_auth_url" {
+  description = "The OpenStack authentication URL"
+  type        = string
+}
 
-# variable "openstack_user_name" {
-#   description = "The OpenStack username"
-#   type        = string
-# }
+variable "openstack_user_name" {
+  description = "The OpenStack username"
+  type        = string
+}
 
-# variable "openstack_tenant_name" {
-#   description = "The OpenStack tenant/project name"
-#   type        = string
-# }
+variable "openstack_tenant_name" {
+  description = "The OpenStack tenant/project name"
+  type        = string
+}
 
-# variable "openstack_password" {
-#   description = "The OpenStack password"
-#   type        = string
-#   sensitive   = true
-# }
+variable "openstack_password" {
+  description = "The OpenStack password"
+  type        = string
+  sensitive   = true
+}
 
-# variable "openstack_region" {
-#   description = "The OpenStack region"
-#   type        = string
-#   default     = "RegionOne"
-# }
+variable "openstack_region" {
+  description = "The OpenStack region"
+  type        = string
+}
 
 variable "network_name" {
   description = "Name of the network to create"
@@ -103,8 +102,12 @@ variable "worker_volume_size" {
   default     = 150
 }
 
-variable "metallb_floating_ip_count" {
-  description = "Number of floating IPs to reserve for MetalLB"
-  type        = number
-  default     = 1
+variable "public_network_id" {
+  description = "ID of the public network for kubernetes openstack cloud controller manager"
+  type        = string
+}
+
+variable "public_subnet_id" {
+  description = "ID of the public subnet for kubernetes openstack cloud controller manager"
+  type        = string
 }

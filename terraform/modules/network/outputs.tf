@@ -32,13 +32,3 @@ output "worker_port_ids" {
   description = "IDs of the created worker node ports"
   value       = openstack_networking_port_v2.worker_port[*].id
 }
-
-output "metallb_floating_ips" {
-  description = "Floating IPs reserved for MetalLB"
-  value       = openstack_networking_floatingip_v2.metallb_floating_ips[*].address
-}
-
-output "metallb_floating_ip_ids" {
-  description = "IDs of the floating IPs reserved for MetalLB"
-  value       = openstack_networking_floatingip_v2.metallb_floating_ips[*].id
-}
