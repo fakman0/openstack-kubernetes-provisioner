@@ -107,7 +107,3 @@ variable "public_network_id" {
   type        = string
 }
 
-variable "public_subnet_id" {
-  description = "ID of the public subnet for kubernetes openstack cloud controller manager"
-  type        = string
-}

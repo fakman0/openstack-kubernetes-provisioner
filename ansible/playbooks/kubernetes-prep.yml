@@ -34,6 +34,6 @@
     # Optional task to automatically reboot if required - uncomment if needed
     - name: Reboot if required
       ansible.builtin.reboot:
-        reboot_timeout: 120
-        post_reboot_delay: 60
+        reboot_timeout: 300
+        post_reboot_delay: 120
       when: reboot_required.stat.exists 

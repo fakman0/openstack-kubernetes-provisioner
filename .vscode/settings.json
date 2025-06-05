@@ -1,6 +1,0 @@
-{
-    "ansible.python.interpreterPath": "/Users/fakman/Desktop/Code/openstack-terraform-kubespray/.venv/bin/python",
-    "yaml.schemas": {
-        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks": "file:///Users/fakman/Desktop/Code/openstack-terraform-kubespray/ansible/roles/kubernetes-post/tasks/cloud_control_manager.yml"
-    }
-}
