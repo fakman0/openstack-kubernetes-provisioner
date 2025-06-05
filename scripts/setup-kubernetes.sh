@@ -46,6 +46,8 @@ echo -e "    - Inventory file: ${PROJECT_ROOT}/ansible/inventory/inventory.yaml"
 echo -e "    - Playbook directory: ${PROJECT_ROOT}/ansible/playbooks"
 echo -e "    - Roles directory: ${PROJECT_ROOT}/ansible/roles"
 
+export ANSIBLE_CONFIG="${PROJECT_ROOT}/ansible/ansible.cfg"
+
 echo -e "${BLUE}[*] Running Kubernetes prerequisites playbook...${NC}"
 ansible-playbook -vv -i "${PROJECT_ROOT}/ansible/inventory/inventory.yaml" "${PROJECT_ROOT}/ansible/playbooks/kubernetes-prep.yml"
 

@@ -45,3 +45,6 @@ terraform.tfvars
 # Ignore ansible files
 ansible.cfg
 inventory.yaml
+
+# Ignore vscode files
+.vscode/

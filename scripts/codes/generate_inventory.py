@@ -36,10 +36,10 @@ def generate_inventory():
             'children': {
                 'kubernetes': {
                     'children': {
-                        'kube_control_plane': {
+                        'masters': {
                             'hosts': {}
                         },
-                        'kube_node': {
+                        'workers': {
                             'hosts': {}
                         },
                         'etcd': {
@@ -47,8 +47,8 @@ def generate_inventory():
                         },
                         'k8s_cluster': {
                             'children': {
-                                'kube_control_plane': {},
-                                'kube_node': {}
+                                'masters': {},
+                                'workers': {}
                             }
                         },
                         'bastion': {
@@ -61,7 +61,17 @@ def generate_inventory():
                 'ansible_user': 'ubuntu',
                 'ansible_ssh_private_key_file': '~/.ssh/id_rsa',
                 'control_plane_floating_ip': outputs['control_plane_floating_ip'],
-                'metallb_floating_ips': outputs['metallb_floating_ips']
+                'openstack_auth_url': outputs['auth_url'],
+                'openstack_region': outputs['region'],
+                'public_network_id': outputs['public_network_id'],
+                'openstack_application_credential_id': outputs['application_credential_id'],
+                'openstack_application_credential_secret': outputs['application_credential_secret'],
+                'master-1-instance-id': outputs['master_instances']['master-1'],
+                'master-2-instance-id': outputs['master_instances']['master-2'],
+                'master-3-instance-id': outputs['master_instances']['master-3'],
+                'worker-1-instance-id': outputs['worker_instances']['worker-1'],
+                'worker-2-instance-id': outputs['worker_instances']['worker-2'],
+                'worker-3-instance-id': outputs['worker_instances']['worker-3']
             }
         }
     }
@@ -70,8 +80,8 @@ def generate_inventory():
     for i, ip in enumerate(outputs['master_ips']):
         host_name = f"master-{i+1}"
         
-        # Add to kube_control_plane group
-        inventory['all']['children']['kubernetes']['children']['kube_control_plane']['hosts'][host_name] = {}
+        # Add to masters group
+        inventory['all']['children']['kubernetes']['children']['masters']['hosts'][host_name] = {}
         
         # Add to etcd group
         inventory['all']['children']['kubernetes']['children']['etcd']['hosts'][host_name] = {}
@@ -89,8 +99,8 @@ def generate_inventory():
     for i, ip in enumerate(outputs['worker_ips']):
         host_name = f"worker-{i+1}"
         
-        # Add to kube_node group
-        inventory['all']['children']['kubernetes']['children']['kube_node']['hosts'][host_name] = {}
+        # Add to workers group
+        inventory['all']['children']['kubernetes']['children']['workers']['hosts'][host_name] = {}
         
         # Add to all hosts
         inventory['all']['hosts'][host_name] = {

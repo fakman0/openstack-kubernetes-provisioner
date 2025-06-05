@@ -18,10 +18,10 @@ rke2_server_config: |
   node-taint:
     - "CriticalAddonsOnly=true:NoExecute"
   cni: "calico"
-  {% endif %}
-  {% if inventory_hostname in groups['workers'] %}
-  node-label:
-    - "node-role.kubernetes.io/worker=true"
+  disable-cloud-controller: true
   {% endif %}
   node-ip: "{{ hostvars[inventory_hostname]['ansible_host'] }}"
   node-name: "{{ inventory_hostname }}"
+  kubelet-arg:
+  - "cloud-provider=external"
+  - "provider-id=openstack://{{ openstack_region }}/{{ vars[inventory_hostname + '-instance-id'] }}"
