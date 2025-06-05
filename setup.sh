@@ -22,13 +22,14 @@ function show_usage {
     echo -e "  ./setup.sh [command]"
     echo ""
     echo -e "${YELLOW}Commands:${NC}"
-    echo -e "  ${GREEN}setup-all${NC}    : Run all setup steps in sequence"
-    echo -e "  ${GREEN}setup-venv${NC}   : Setup Python virtual environment and dependencies"
-    echo -e "  ${GREEN}setup-ansible${NC}: Generate Ansible configuration"
+    echo -e "  ${GREEN}all${NC}    : Run all setup steps in sequence"
+    echo -e "  ${GREEN}venv${NC}   : Setup Python virtual environment and dependencies"
+    echo -e "  ${GREEN}ansible${NC}: Generate Ansible configuration"
+    echo -e "  ${GREEN}kubernetes${NC}: Install Kubernetes cluster"
     echo -e "  ${GREEN}help${NC}         : Show this help message"
     echo ""
     echo -e "${YELLOW}Example:${NC}"
-    echo -e "  ./setup.sh setup-all"
+    echo -e "  ./setup.sh all"
 }
 
 # Check command line arguments
@@ -45,7 +46,7 @@ chmod +x "${SCRIPTS_DIR}/codes/generate_ansible_cfg.py"
 
 # Process commands
 case "$1" in
-    setup-all)
+    all)
         echo -e "${YELLOW}[*] Starting all setup steps...${NC}"
         
         # Setup Python virtual environment
@@ -53,18 +54,26 @@ case "$1" in
         
         # Generate Ansible configuration
         "${SCRIPTS_DIR}/generate_ansible.sh"
+
+        # Install Kubernetes cluster
+        "${SCRIPTS_DIR}/setup-kubernetes.sh"
         
         echo -e "${GREEN}[+] All setup steps completed.${NC}"
         ;;
         
-    setup-venv)
+    venv)
         echo -e "${YELLOW}[*] Starting Python virtual environment setup...${NC}"
         "${SCRIPTS_DIR}/generate_venv.sh"
         ;;
         
-    setup-ansible)
+    ansible)
         echo -e "${YELLOW}[*] Starting Ansible configuration...${NC}"
         "${SCRIPTS_DIR}/generate_ansible.sh"
+        ;;
+        
+    kubernetes)
+        echo -e "${YELLOW}[*] Starting Kubernetes installation...${NC}"
+        "${SCRIPTS_DIR}/setup-kubernetes.sh"
         ;;
         
     help|--help|-h)

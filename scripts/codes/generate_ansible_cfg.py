@@ -21,7 +21,10 @@ def load_terraform_outputs():
 def generate_ansible_cfg(bastion_ip):
     """Generate ansible.cfg content with bastion configuration."""
     cfg_content = f"""[defaults]
-inventory = inventory/inventory.yaml
+inventory = ./inventory/inventory.yaml
+roles_path = roles
+log_path = ansible.log
+verbosity = 1
 host_key_checking = False
 pipelining = True
 forks = 10

@@ -22,3 +22,19 @@ output "worker_instance_ids" {
   description = "IDs of the worker instances"
   value       = openstack_compute_instance_v2.worker[*].id
 }
+
+output "master_instances_map" {
+  description = "Map of master instance names to their IDs"
+  value = {
+    for i, instance in openstack_compute_instance_v2.master :
+    "master-${i+1}" => instance.id
+  }
+}
+
+output "worker_instances_map" {
+  description = "Map of worker instance names to their IDs"
+  value = {
+    for i, instance in openstack_compute_instance_v2.worker :
+    "worker-${i+1}" => instance.id
+  }
+}
