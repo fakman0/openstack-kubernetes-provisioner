@@ -1,183 +1,114 @@
-# Kubernetes Cluster on OpenStack with Terraform
+# OpenStack Kubernetes Provisioner
 
-This Terraform project creates a Kubernetes cluster on OpenStack with the following components:
+This project is designed to automatically create a highly available Kubernetes cluster on OpenStack. Infrastructure setup and Kubernetes configuration are fully automated using Terraform and Ansible.
 
-- Network infrastructure (VPC, subnet, router, security groups)
-- Persistent volumes for Kubernetes nodes
-- 3 master and 3 worker nodes pre-configured with Kubernetes dependencies
-- MetalLB integration with reserved floating IPs and allowed address pairs on all nodes
-- Pre-configured ports for all nodes with security groups
+## Project Purpose
 
-## Directory Structure
+This project aims to create a Kubernetes cluster in an OpenStack cloud environment with the following features:
 
-```
-.
-├── main.tf              # Main Terraform configuration file
-├── variables.tf         # Input variables definition
-├── outputs.tf           # Output values definition
-├── versions.tf          # Terraform and provider versions
-├── files/               # Additional files (SSH keys, etc.)
-├── modules/
-│   ├── network/         # Network module (VPC, subnet, router, security groups, ports, floating IPs)
-│   ├── compute/         # Compute module (instances and server configurations)
-│   └── volumes/         # Volumes module (persistent volumes for instances)
-```
+- Multiple master nodes for high availability
+- Scalable worker node structure
+- RKE2 (Rancher Kubernetes Engine 2) based Kubernetes installation
+- OpenStack Cloud Controller Manager integration
+- Automated installation and configuration process
 
-## Prerequisites
+## Kubernetes Cluster Structure
 
-- Terraform 1.10.5 or higher
-- OpenStack credentials
-- SSH key pair for accessing the instances
+The created Kubernetes cluster consists of the following components:
 
-## Configuration
+- **Master Nodes**: Servers running Kubernetes control plane components (API server, scheduler, controller manager). By default, 3 master nodes are created for high availability.
+- **Worker Nodes**: Servers where application workloads run. Scalable according to needs.
+- **Network Structure**: A private network and subnet are created on OpenStack. Floating IP address is provided for Kubernetes services.
+- **Security**: Network traffic is controlled with OpenStack security groups.
+- **Storage**: Separately sizeable storage areas for master and worker nodes.
 
-1. Create a `terraform.tfvars` file with your OpenStack credentials and configuration:
+## Installation Steps
 
-```hcl
-openstack_auth_url    = "https://your-openstack-url:5000/v3"
-openstack_user_name   = "your-username"
-openstack_tenant_name = "your-project"
-openstack_password    = "your-password"
-openstack_region      = "your-region"
+### Prerequisites
 
-image_id              = "your-image-id"
-ssh_public_key        = "ssh-rsa AAAA..."
+- OpenStack account and access credentials
+- Terraform (v1.0.0 or higher)
+- Ansible (v2.9 or higher)
+- Python 3.6 or higher
 
-# Optional: Configure MetalLB floating IP count
-metallb_floating_ip_count = 3  # Number of floating IPs to reserve for MetalLB
-```
+### 1. Infrastructure Setup with Terraform
 
-You can update other variables as needed in this file.
-
-## Usage
-
-1. Initialize Terraform:
-
-```
-terraform init
-```
-
-2. Plan the deployment:
-
-```
-terraform plan
-```
-
-3. Apply the configuration:
-
-```
-terraform apply
-```
-
-4. After successful deployment, you'll get the IP addresses of the master and worker nodes, as well as the floating IPs reserved for MetalLB.
-
-## MetalLB Configuration
-
-This deployment automatically reserves floating IPs for MetalLB and configures all nodes with allowed address pairs to support these IPs. After deploying your Kubernetes cluster, you can configure MetalLB to use these floating IPs:
-
-1. Install MetalLB in your Kubernetes cluster
-2. Configure MetalLB to use the reserved floating IPs as an address pool
-3. Create services of type LoadBalancer that will automatically use these IPs
-
-The reserved floating IP addresses can be found in the Terraform outputs:
-
-```
-terraform output metallb_floating_ips
-```
-
-### Sample MetalLB Configuration
-
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  namespace: metallb-system
-  name: config
-data:
-  config: |
-    address-pools:
-    - name: default
-      protocol: layer2
-      addresses:
-      - <floating-ip-1>/32
-      - <floating-ip-2>/32
-      - <floating-ip-3>/32
-```
-
-## Using the tf8 Utility Script
-
-For convenience, you can use the `tf8` script to simplify common operations:
-
-```
-./tf8 [COMMAND]
-```
-
-Available commands:
-- `init` - Initialize Terraform working directory
-- `plan` - Show execution plan
-- `deploy` - Deploy the infrastructure (runs init, plan, and apply)
-- `remove` or `destroy` - Remove all created resources
-- `state` - List resources in the Terraform state
-- `output` - Show output values
-- `help` - Show help message
-
-Example:
-```
-chmod +x tf8  # Make the script executable first
-./tf8 deploy  # Deploy the complete infrastructure
-```
-
-## Terraform Outputs for Ansible
-
-This project automatically exports Terraform outputs to a JSON file for use with Ansible. After running `terraform apply`, a file named `ansible/inventory/terraform_outputs.json` will be created containing all the infrastructure details.
-
-### Dynamic Ansible Inventory
-
-A dynamic inventory script is provided in `ansible/inventory/terraform_inventory.py` that reads the Terraform outputs and generates an Ansible inventory. To use it:
-
-1. Make sure the script is executable:
-   ```
-   chmod +x ansible/inventory/terraform_inventory.py
+1. Navigate to the Terraform directory:
+   ```bash
+   cd terraform
    ```
 
-2. Test the inventory:
+2. Create and edit the `terraform.tfvars` file:
+   ```bash
+   cp terraform.tfvars.example terraform.tfvars
    ```
-   ansible/inventory/terraform_inventory.py --list
+   
+   You need to edit the following information:
+   - OpenStack authentication credentials
+   - Network configuration
+   - Server counts and specifications
+   - SSH key information
+   - Storage sizes
+
+3. Create the infrastructure with Terraform:
+   ```bash
+   terraform init
+   terraform apply
    ```
 
-3. Run Ansible playbooks using this inventory:
-   ```
-   cd ansible
-   ansible-playbook -i inventory/terraform_inventory.py playbooks/your-playbook.yml
-   ```
+   When this process is complete, the `terraform_outputs.json` file will be created in the main directory.
 
-The inventory automatically sets up the following groups:
-- `kube_control_plane`: All master nodes
-- `kube_node`: All worker nodes
-- `etcd`: All master nodes (for etcd)
-- `k8s_cluster`: All Kubernetes nodes
+### 2. Ansible Configuration
 
-Additional variables are also available, including `control_plane_floating_ip` and `metallb_floating_ips`.
+Return to the main directory and run the setup.sh script:
 
-## Cleaning Up
-
-To destroy all resources:
-
+```bash
+cd ..
+./setup.sh all
 ```
-terraform destroy
+
+This command performs the following operations:
+- Creates a Python virtual environment and installs necessary dependencies
+- Creates the Ansible inventory file using Terraform outputs
+- Creates the Ansible configuration file
+
+### 3. Kubernetes Installation
+
+Navigate to the Ansible directory and run the playbooks in sequence:
+
+```bash
+cd ansible
+```
+
+1. Preparation for Kubernetes installation:
+   ```bash
+   ansible-playbook playbooks/kubernetes-prep.yml
+   ```
+
+2. Kubernetes installation:
+   ```bash
+   ansible-playbook playbooks/kubernetes-install.yml
+   ```
+
+3. Post-installation configuration:
+   ```bash
+   ansible-playbook playbooks/kubernetes-post.yml
+   ```
+
+## Post-Installation
+
+When the installation is complete, the kubeconfig file needed to access the Kubernetes cluster will be created on the first master node. You can copy this file to your local machine and manage the cluster with `kubectl` commands.
+
+To access the cluster:
+
+```bash
+scp ubuntu@<control_plane_floating_ip>:~/.kube/config ~/.kube/config
+kubectl get nodes
 ```
 
 ## Customization
 
-You can customize the deployment by modifying the variables in `variables.tf` or by providing different values in your `terraform.tfvars` file.
-
-Key variables:
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| master_count | Number of Kubernetes master nodes | 3 |
-| worker_count | Number of Kubernetes worker nodes | 3 |
-| metallb_floating_ip_count | Number of floating IPs to reserve for MetalLB | 1 |
-| master_flavor | Flavor for master nodes | m1.large |
-| worker_flavor | Flavor for worker nodes | m1.large |
-| subnet_cidr | CIDR for the subnet | 10.0.0.0/24 |
+- Master and worker node counts can be adjusted from the `terraform.tfvars` file
+- Hardware specifications (flavor) of nodes can be changed from the `terraform.tfvars` file
+- Storage sizes can be adjusted from the `terraform.tfvars` file
+- Network configuration can be customized from the `terraform.tfvars` file

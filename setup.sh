@@ -25,7 +25,6 @@ function show_usage {
     echo -e "  ${GREEN}all${NC}    : Run all setup steps in sequence"
     echo -e "  ${GREEN}venv${NC}   : Setup Python virtual environment and dependencies"
     echo -e "  ${GREEN}ansible${NC}: Generate Ansible configuration"
-    echo -e "  ${GREEN}kubernetes${NC}: Install Kubernetes cluster"
     echo -e "  ${GREEN}help${NC}         : Show this help message"
     echo ""
     echo -e "${YELLOW}Example:${NC}"
@@ -55,9 +54,6 @@ case "$1" in
         # Generate Ansible configuration
         "${SCRIPTS_DIR}/generate_ansible.sh"
 
-        # Install Kubernetes cluster
-        "${SCRIPTS_DIR}/setup-kubernetes.sh"
-        
         echo -e "${GREEN}[+] All setup steps completed.${NC}"
         ;;
         
@@ -69,11 +65,6 @@ case "$1" in
     ansible)
         echo -e "${YELLOW}[*] Starting Ansible configuration...${NC}"
         "${SCRIPTS_DIR}/generate_ansible.sh"
-        ;;
-        
-    kubernetes)
-        echo -e "${YELLOW}[*] Starting Kubernetes installation...${NC}"
-        "${SCRIPTS_DIR}/setup-kubernetes.sh"
         ;;
         
     help|--help|-h)
