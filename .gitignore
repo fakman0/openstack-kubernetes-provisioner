@@ -48,3 +48,6 @@ inventory.yaml
 
 # Ignore vscode files
 .vscode/
+
+# remove log files
+*.log
