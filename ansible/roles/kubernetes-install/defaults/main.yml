@@ -19,6 +19,8 @@ rke2_server_config: |
     - "CriticalAddonsOnly=true:NoExecute"
   cni: "calico"
   disable-cloud-controller: true
+  disable: 
+    - rke2-ingress-nginx
   {% endif %}
   node-ip: "{{ hostvars[inventory_hostname]['ansible_host'] }}"
   node-name: "{{ inventory_hostname }}"

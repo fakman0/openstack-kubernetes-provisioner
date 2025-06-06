@@ -1,0 +1,25 @@
+---
+
+- name: Create octavia directory
+  ansible.builtin.file:
+    path: /root/rke2-manifests/occm-ingress
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Create octavia ingress controller service account
+  ansible.builtin.copy:
+    content: "{{ occm_octavia_serviceaccount_yaml }}"
+    dest: /root/rke2-manifests/occm-ingress/serviceaccount.yaml
+    mode: '0644'
+    owner: root
+    group: root
+
+- name: Create octavia ingress controller configmap
+  ansible.builtin.copy:
+    content: "{{ occm_octavia_config_yaml }}"
+    dest: /root/rke2-manifests/occm-ingress/configmap.yaml
+    mode: '0644'
+    owner: root
+    group: root
