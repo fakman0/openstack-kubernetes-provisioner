@@ -65,12 +65,14 @@ resource "local_file" "terraform_outputs" {
     router_id                = module.network.router_id
     secgroup_id              = module.network.secgroup_id
     public_network_id        = var.public_network_id
+    subnet_id                = module.network.subnet_id
     auth_url                 = var.openstack_auth_url
     region                   = var.openstack_region
     application_credential_id = module.identity.application_credential_id
     application_credential_secret = module.identity.application_credential_secret
     master_instances         = module.compute.master_instances_map
     worker_instances         = module.compute.worker_instances_map
+    cluster_name             = var.cluster_name
   })
   filename = "${path.module}/../terraform_outputs.json"
 }

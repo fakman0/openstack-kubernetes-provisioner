@@ -3,3 +3,7 @@
 - name: Install and configure kubernetes openstack cloud controller manager
   ansible.builtin.import_tasks: cloud_controller_manager.yml
   tags: occm
+
+- name: Install octavia ingress controller
+  ansible.builtin.import_tasks: octavia_ingress_controller.yml
+  tags: octavia-ingress-controller

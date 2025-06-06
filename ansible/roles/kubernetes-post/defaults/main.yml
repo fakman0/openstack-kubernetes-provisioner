@@ -1,3 +1,5 @@
+occm_ingress_image: "registry.k8s.io/provider-os/octavia-ingress-controller:v1.32.0"
+
 occm_config: |
   [Global]
   auth-url={{ openstack_auth_url }}
@@ -8,3 +10,99 @@ occm_config: |
   [LoadBalancer]
   use-octavia=true
   floating-network-id={{ public_network_id }}
+
+occm_octavia_serviceaccount_yaml: |
+  ---
+  kind: ServiceAccount
+  apiVersion: v1
+  metadata:
+    name: octavia-ingress-controller
+    namespace: kube-system
+  ---
+  kind: ClusterRoleBinding
+  apiVersion: rbac.authorization.k8s.io/v1
+  metadata:
+    name: octavia-ingress-controller
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: cluster-admin
+  subjects:
+    - kind: ServiceAccount
+      name: octavia-ingress-controller
+      namespace: kube-system
+  
+occm_octavia_config_yaml: |
+  ---
+  kind: ConfigMap
+  apiVersion: v1
+  metadata:
+    name: octavia-ingress-controller-config
+    namespace: kube-system
+  data:
+    config: |
+      cluster-name: {{ cluster_name }}
+      openstack:
+        auth-url: {{ openstack_auth_url }}
+        application-credential-id: {{ openstack_application_credential_id }}
+        application-credential-secret: {{ openstack_application_credential_secret }}
+        region: {{ openstack_region }}
+      octavia:
+        subnet-id: {{ subnet_id }}
+        floating-network-id: {{ public_network_id }}
+
+occm_octavia_ingress_controller_yaml: |
+  ---
+  kind: StatefulSet
+  apiVersion: apps/v1
+  metadata:
+    name: octavia-ingress-controller
+    namespace: kube-system
+    labels:
+      k8s-app: octavia-ingress-controller
+  spec:
+    replicas: 3
+    selector:
+      matchLabels:
+        k8s-app: octavia-ingress-controller
+    serviceName: octavia-ingress-controller
+    template:
+      metadata:
+        labels:
+          k8s-app: octavia-ingress-controller
+      spec:
+        nodeSelector:
+          node-role.kubernetes.io/control-plane: "true"
+        serviceAccountName: octavia-ingress-controller
+        tolerations:
+          - effect: NoSchedule # Make sure the pod can be scheduled on master kubelet.
+            operator: Exists
+          - key: CriticalAddonsOnly # Mark the pod as a critical add-on for rescheduling.
+            operator: Exists
+          - effect: NoExecute
+            operator: Exists
+        containers:
+          - name: octavia-ingress-controller
+            image: {{ occm_ingress_image }}
+            imagePullPolicy: IfNotPresent
+            args:
+              - /bin/octavia-ingress-controller
+              - --config=/etc/config/octavia-ingress-controller-config.yaml
+            volumeMounts:
+              - mountPath: /etc/kubernetes
+                name: kubernetes-config
+                readOnly: true
+              - name: ingress-config
+                mountPath: /etc/config
+        hostNetwork: true
+        volumes:
+          - name: kubernetes-config
+            hostPath:
+              path: /etc/kubernetes
+              type: Directory
+          - name: ingress-config
+            configMap:
+              name: octavia-ingress-controller-config
+              items:
+                - key: config
+                  path: octavia-ingress-controller-config.yaml
