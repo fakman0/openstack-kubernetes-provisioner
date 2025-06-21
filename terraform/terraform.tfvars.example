@@ -27,7 +27,8 @@ master_volume_size    = 100
 worker_volume_size    = 150 
 
 # Network Configuration for kubernetes openstack cloud contraller manager
-public_network_id = ""
+public_network_id = "918df027-..."
+subnet_id = "a411de3a-..."
 
 # Cluster Name
-cluster_name = ""
+cluster_name = "stage-cluster"
