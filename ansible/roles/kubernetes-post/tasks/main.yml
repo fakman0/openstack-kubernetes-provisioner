@@ -5,5 +5,17 @@
   tags: occm
 
 - name: Install octavia ingress controller
-  ansible.builtin.import_tasks: octavia_ingress_controller.yml
+  ansible.builtin.import_tasks: octavia_ingress_install.yml
   tags: octavia-ingress-controller
+
+- name: Install helm
+  ansible.builtin.import_tasks: install_helm.yml
+  tags: helm
+
+- name: Install kustomize
+  ansible.builtin.import_tasks: kustomize_install.yml
+  tags: kustomize
+
+- name: Install longhorn
+  ansible.builtin.import_tasks: longhorn_install.yml
+  tags: longhorn

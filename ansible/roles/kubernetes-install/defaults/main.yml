@@ -1,9 +1,4 @@
 ---
-# RKE2 version and installation options
-rke2_version: "v1.32.5+rke2r1"
-rke2_channel: "stable"
-rke2_installer_url: "https://get.rke2.io"
-
 rke2_server_config: |
   {% if inventory_hostname != groups['masters'][0] %}
   server: "https://{{ hostvars[groups['masters'][0]]['ansible_host'] }}:9345"
@@ -17,7 +12,7 @@ rke2_server_config: |
   {% endfor %}
   node-taint:
     - "CriticalAddonsOnly=true:NoExecute"
-  cni: "calico"
+  cni: "cilium"
   disable-cloud-controller: true
   disable: 
     - rke2-ingress-nginx

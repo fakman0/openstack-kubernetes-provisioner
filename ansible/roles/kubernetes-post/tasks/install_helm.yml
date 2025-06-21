@@ -1,0 +1,9 @@
+---
+
+- name: Get and install helm
+  ansible.builtin.shell: |
+    curl -fsSL -o /root/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    chmod 700 /root/get_helm.sh
+    /root/get_helm.sh
+  become: true
+  tags: helm

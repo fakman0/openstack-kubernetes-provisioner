@@ -48,3 +48,4 @@ inventory.yaml
 
 # Ignore vscode files
 .vscode/
+ansible.log
